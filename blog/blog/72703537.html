@@ -1,0 +1,3 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>在OpenSuSE 10.3下安装oracle 10g XE需要注意的一点</title></head><body><h1>在OpenSuSE 10.3下安装oracle 10g XE需要注意的一点</h1><div>&nbsp;&nbsp;&nbsp;&nbsp;  安装oracle 10g xe版本后，我发现http管理界面进不去。然后查了N多资料大概确定<br>
+rpm -ivh oracle-xe-univ-10.2.0.1-1.0.i386.rpm 和/etc/init.d/oracle-xe configure是要在oracle用户下运行的。(貌似和用户和组有关）<br>
+&nbsp;&nbsp;&nbsp;&nbsp;  之前我安装的时候都在root或者一般用户下运行的，一直是失败。web管理界面进不去，sqlplus也错误，大概是说缺少权限。/etc/init.d/oracle-xe configure很快，貌似没有创建数据库。</div></body></html>

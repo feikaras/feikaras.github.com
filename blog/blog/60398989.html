@@ -1,0 +1,20 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Opera字体设置</title></head><body><h1>Opera字体设置</h1><div>系统: kubuntu 7.10 x64 <br>
+Opera  9.50b x64<br>
+使用字体：Lucida Grande 、STHei<br>
+<br>
+设置opera菜单里面的字体全为STHei，结束<br>
+<br>
+这时候部分网站的字体还是不正常，调用了日文字体。但是大多数网站正常了<br>
+<br>
+LC_ALL=zh_CN.gbk后<br>
+全部正常了。。。<br>
+<br>
+11.11修正：<br>
+用以下CSS,保存到~/.opera/styles/user下<br>
+html,body,*{<br>
+font-family:&rdquo;STHeiti&rdquo;!important;}<br>
+在opera菜单的view-style-manage modes里面写入路径<br>
+<br>
+<br>
+顺便写个64bit 950b 地址<br>
+http://ftp.opera.com/pub/opera/linux/950b/final/en/x86_64/</div></body></html>

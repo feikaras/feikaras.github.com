@@ -1,0 +1,27 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>禁止软件包通过apt升级</title></head><body><h1>禁止软件包通过apt升级</h1><div>先是最简单的方法<br>
+echo  nspluginwrapper hold |sudo dpkg --set-selections <br>
+ <br>
+aptitude里面也可以在要hold的软件包上按H或者=标注 <br>
+但是这设置只能用于aptitude,不带入apt-get <br>
+ <br>
+没测试过的另外一个方法：  <br>
+ <br>
+使用dpkg，首先导出软件包选择列表： <br>
+ <br>
+dpkg --get-selections \* &amp;gt; selections.txt <br>
+ <br>
+接着编辑文件selections.txt，修改想要恢复的软件所在的行，例如libc6，则将： <br>
+ <br>
+libc6 install <br>
+ <br>
+改为： <br>
+ <br>
+libc6 hold <br>
+ <br>
+保存文件，将它装入dpkg数据库： <br>
+ <br>
+dpkg --set-selections &amp;lt; selections.txt <br>
+ <br>
+或者，如果你知道要恢复的软件包名称，执行： <br>
+ <br>
+echo libc6 hold | dpkg --set-selections</div></body></html>

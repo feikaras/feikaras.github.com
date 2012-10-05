@@ -1,0 +1,17 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Mandriva Linux 2009  AMD catalyst 8.10安装成功,Ubuntu用户应该也可以照做。。</title></head><body><h1>Mandriva Linux 2009  AMD catalyst 8.10安装成功,Ubuntu用户应该也可以照做。。</h1><div>&nbsp;&nbsp;&nbsp;&nbsp;    虽然fglrx 8.10驱动还是不支持2.6.27内核。但是可以使用fglrx 8.9版本的patch来支持。<br>
+去这个下patch:<br>
+http://www.linuxsir.org/bbs/thread336166.html<br>
+然后<br>
+bash ati-driver-installer-8-10-x86.x86_64.run --extract  ati<br>
+进入<br>
+ati/common/lib/modules/fglrx/build_mod<br>
+把patch放入此目录<br>
+patch -p0 &lt; fglrx-8.9-2.6.27.patch<br>
+然后回ati..<br>
+以root运行<br>
+ati-installer.sh 8.542 --install<br>
+<br>
+<br>
+note:<br>
+<br>
+如果之前装过ati官方驱动失败，去删除/var/lib/dkms/fglrx 和/usr/src/里的fglrx</div></body></html>

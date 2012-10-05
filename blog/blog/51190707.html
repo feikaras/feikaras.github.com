@@ -1,0 +1,39 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>WINE安装后，一些必要的步骤</title></head><body><h1>WINE安装后，一些必要的步骤</h1><div><font size="3"><span>转我以前的老文章，可能新版本有些不能用。= =<br>
+加入什么的尽量用regedit<br>
+<br>
+由于我的locale是zh_CN.UTF-8 ，的确，出现了wine很慢的现象。</span><br>
+<span>所以修改 /usr/share/X11/locale/zh_CN.UTF-8/XLC_LOCALE，</span><br>
+<span>把里面有 GBK 字样的段全部删掉。</span><br>
+<br>
+<span>字体发虚的解决。</span><br>
+<span>参考</span><br>
+<span>http://www.easywine.org/bbs/viewthread.php?tid=5&amp;extra=page%3D8</span><br>
+<br>
+<span>加入 ~/.wine/user.reg</span><br>
+<br>
+<span>[Software\\Wine\\WineBrowser]</span><br>
+<span>&quot;Browsers&quot;=&quot;firefox&quot;</span><br>
+<br>
+<span>[Software\\Wine\\X11 Driver]</span><br>
+<span>&quot;ClientSideAntiAliasWithRender&quot;=&quot;N&quot;</span><br>
+<br>
+<br>
+<span>菜单按钮中文乱码解决</span><br>
+<span>首先在 system.reg 里手动添加</span><br>
+<br>
+<span>[Software\\Microsoft\\Windows NT\\CurrentVersion\\FontLink\\SystemLink] 1150441842</span><br>
+<span>&quot;Tahoma&quot;=str(7):&quot;simsun.ttc,\x5b8b\x4f53\0msgothic.ttc,MS UI Gothic\0mingliu.ttc,PMingLiU\0&quot;</span><br>
+<br>
+<br>
+<span>字体大小</span><br>
+<span>加入到windows/win.ini</span><br>
+<span>[Desktop]</span><br>
+<span>menufontsize=13</span><br>
+<span>messagefontsize=13</span><br>
+<span>statusfontsize=13</span><br>
+<span>IconTitleSize=13</span><br>
+<br>
+<span>改变dialog window buttom的字体大小 (本人没用,效果不太好）</span><br>
+<span>修改/加入 ~/.wine/system.reg</span><br>
+<span>[System\\CurrentControlSet\\Hardware Profiles\\Current\\Software\\Fonts]</span><br>
+<span>&quot;LogPixels&quot;=dword:00000082</span></font></div></body></html>

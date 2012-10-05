@@ -1,0 +1,19 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Debian sid 下使用Knetworkmanager</title></head><body><h1>Debian sid 下使用Knetworkmanager</h1><div>想用鼠标加入无线网。。。仅此而已。。。<br>
+<span class="fullpost">
+<pre class="ducode">sudo apt-get install network-manager-kde<br><br><span class="fullpost"><span style="color: rgb(255, 0, 0);">保证在/etc/network/interfaces里只有<br></span></span>auto lo<br><span class="fullpost"><pre class="dutexte">iface lo inet loopback<br>别的网卡都要注释掉<br>确保你在netdev组内，如果不是，则:<br><span class="fullpost"><pre class="ducode">sudo adduser <span style="font-style: italic;">your_username</span> netdev</pre>
+<br>
+</span>重新起动network-manager服务<br>
+<br>
+sudo /etc/init.d/network-manager restart<br>
+<br>
+<br>
+<br>
+运行knetworkmanager应该OK了<br>
+<br>
+<br>
+<br>
+reffer to: <a target="_blank" href="http://technowizah.com/2007/02/debian-how-to-managing-networks-with.html">http://technowizah.com/2007/02/debian-how-to-managing-networks-with.html</a><br>
+PRC 用户请绕路看</pre>
+<br>
+</span></pre>
+</span></div></body></html>

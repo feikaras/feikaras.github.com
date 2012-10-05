@@ -1,0 +1,330 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Dell 1501 Slackware 12地狱游记 （安装笔记）</title></head><body><h1>Dell 1501 Slackware 12地狱游记 （安装笔记）</h1><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              其实乌鸦的slackware 12dvd盘我07年7月份就刻好了。因为当时安装了下，很好很强大，在启动安装程序的内核的时候就在cpu检测的地方挂掉了，用非smp的内核倒是可以进。这样怎么行?双核才用一个核心？乌鸦当时贪图方便，使用了ubuntu系统。虽然bug 多了点，但是好歹还是能用吧，设备都驱动起来了。<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              现在寒假玩完了超白痴的opensuse系统，那个yast可以给你搞定绝大多数的设置。搞得我自己都快白痴掉了，他到底改了什么，一点都不知道。为了麻烦麻烦自己（明显找抽），准备装那个slackware12的系统。<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              google了一下，原来1501有那么多的问题，首先，ati显示卡，linux下用ati的卡感觉有点找抽。其次， Broadcom Corporation BCM94311MCG wlan mini-PC这个有名的公司的无线网卡。Broadcom一不提供linux驱动，二也不公开硬件规格。这驱动么。。。最后，是ATI的SB600南桥，有pci bug. 最新的BIOS里面看来还是未修正，导致安装系统的时候会需要pci=nomsi或者acpi=off这样的内核参数。。不得不提到的是那东西的SATA控制器。<br>
+<br>
+Loading Adaptec I2O RAID: Version 2.4 Build 5go<br>
+Detecting Adaptec I2O RAID controllers...<br>
+Adaptec aacraid driver 1.1-5[2449]-ms<br>
+aic94xx: Adaptec aic94xx SAS/SATA driver version 1.0.3 loaded<br>
+<br>
+这驱动在内核编译选项的scsi下头。这次自己动手编译了内核，因为scsi全没选导致的VFS错误让乌鸦我抓狂了好几个小时。他，他居然在scsi下头。亏我反反复复在上头的sata选项里面看了好久。。。。。。。。。<br>
+<br>
+<br>
+抱怨完毕，开始正题。<br>
+先列一下我分区<br>
+/dev/sda1&nbsp;&nbsp;&nbsp;             ext3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             10g&nbsp;&nbsp;             openSuSE 10.3的/<br>
+/dev/sda5&nbsp;&nbsp;&nbsp;             reiserfs&nbsp;&nbsp;&nbsp;             9g&nbsp;&nbsp;             slackware的/<br>
+/dev/sda3&nbsp;&nbsp;&nbsp;             xfs&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             20g&nbsp;&nbsp;             openSuse的/home<br>
+/dev/sda4&nbsp;&nbsp;&nbsp;             xfs&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             72g&nbsp;&nbsp;             /data  杂物<br>
+<br>
+grub在/dev/sda1<br>
+<br>
+<br>
+<strong>安装部分<br>
+<br>
+</strong>1.插入slackware 12 DVD开始引导，启动的时候他会让你选择内核，这时候选择hugesmp.s记得加上参  数acpi=off,否则会引导不能。<br>
+<br>
+2.按照屏幕提示安装，安装软件包的时候建议大家使用expert专家模式，自己好好得选。不然装完了会发现怎么装了那么多没用的软件。（特别是新闻阅读器，多余的内核，kde的几个播放器，还有多余的桌面环境）我这里不安装LILO,因为已经有grub了。<br>
+<br>
+3.软件包装好了，开始设置下grub,加入slackware的项目，如果还是hugesmp记得还是要跟上参数acpi=off。<br>
+<br>
+4.启动slackware,配置吧，下面才是真的头疼的地方。我抓狂好几次了。<br>
+&nbsp;&nbsp;             (1)中文环境&nbsp;&nbsp;             <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             建立一个字体文件夹 mkdir /usr/share/fonts/TTF/CJK<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             copy一些CJK字体<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             配置字体文件<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             mkfontscale<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             mkfontdir<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             顺便copy local.conf到/etc/fonts/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             附带上我的locale.conf,基本就是ubuntu那个。。<br>
+<br>
+<font color="#999999"><br>
+</font><font color="#00ff00"><font color="#999999">&lt;fontconfig&gt;<br>
+&lt;dir&gt;/usr/share/fonts/TTF/CJK&lt;/dir&gt;<br>
+&nbsp;&nbsp;&nbsp;             &lt;alias&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;serif&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;prefer&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;Bitstream Vera Serif&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;DejaVu Serif&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &lt;family&gt;FZSongTi&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &lt;family&gt;FZMingTi&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;AR PL ShanHeiSun Uni&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;WenQuanYi Bitmap Song&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;AR PL ZenKai Uni&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &lt;family&gt;MS Mincho&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &lt;family&gt;MS PMincho&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/prefer&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/alias&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;alias&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;sans-serif&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;prefer&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;Bitstream Vera Sans&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;DejaVu Sans&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &lt;family&gt;FZSongTi&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &lt;family&gt;FZMingTi&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;AR PL ShanHeiSun Uni&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;WenQuanYi Bitmap Song&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;AR PL ZenKai Uni&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &lt;family&gt;MS Mincho&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &lt;family&gt;MS PMincho&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/prefer&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/alias&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;alias&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;monospace&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;prefer&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;Bitstream Vera Sans Mono&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;DejaVu Sans Mono&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &lt;family&gt;FZSongTi&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &lt;family&gt;FZMingTi&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;AR PL ShanHeiSun Uni&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;WenQuanYi Bitmap Song&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;family&gt;AR PL ZenKai Uni&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &lt;family&gt;MS Mincho&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &lt;family&gt;MS PMincho&lt;/family&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/prefer&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/alias&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;match target=&quot;font&quot; &gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;test name=&quot;family&quot; compare=&quot;contains&quot; &gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;string&gt;Song&lt;/string&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;string&gt;Sun&lt;/string&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;string&gt;Kai&lt;/string&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;string&gt;Ming&lt;/string&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/test&gt; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;!-- check to see if the font is just regular --&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;test name=&quot;weight&quot; compare=&quot;less_eq&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;int&gt;100&lt;/int&gt;<br>
+&nbsp;&nbsp;&nbsp;             &nbsp;&nbsp;&nbsp;             &lt;/test&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;test compare=&quot;more_eq&quot; target=&quot;pattern&quot; name=&quot;weight&quot; &gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;int&gt;180&lt;/int&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/test&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;edit mode=&quot;assign&quot; name=&quot;embolden&quot; &gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;bool&gt;true&lt;/bool&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/edit&gt;<br>
+&nbsp;&nbsp;&nbsp;             &lt;/match&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;match target=&quot;font&quot; &gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;test name=&quot;family&quot; compare=&quot;contains&quot; &gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;string&gt;Song&lt;/string&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;string&gt;Sun&lt;/string&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;string&gt;Kai&lt;/string&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;string&gt;Ming&lt;/string&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/test&gt; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;edit name=&quot;globaladvance&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;bool&gt;false&lt;/bool&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/edit&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;edit name=&quot;spacing&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;int&gt;0&lt;/int&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/edit&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;edit name=&quot;hinting&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;bool&gt;true&lt;/bool&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/edit&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;edit name=&quot;autohint&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;bool&gt;false&lt;/bool&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/edit&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;edit name=&quot;antialias&quot; mode=&quot;assign&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;bool&gt;true&lt;/bool&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/edit&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;test name=&quot;pixelsize&quot; compare=&quot;less_eq&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;int&gt;18&lt;/int&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/test&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;edit name=&quot;antialias&quot; mode=&quot;assign&quot; &gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;bool&gt;false&lt;/bool&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/edit&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;/match&gt;<br>
+&lt;match target=&quot;font&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp;             &lt;test name=&quot;family&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;string&gt;STHeiti&lt;/string&gt;<br>
+&nbsp;&nbsp;&nbsp;             &lt;/test&gt;<br>
+&nbsp;&nbsp;&nbsp;             &lt;edit name=&quot;hinting&quot;&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;             &lt;bool&gt;false&lt;/bool&gt;<br>
+&nbsp;&nbsp;&nbsp;             &lt;/edit&gt;<br>
+&lt;/match&gt;<br>
+&lt;/fontconfig&gt;<br>
+<font color="#000000"><br>
+继续。。。不知掉这时候你发现了么。这系统他不支持粗体，还有亚像素微调。（如果用STHEI当中文字体，又没有亚像素微调，很难看）<br>
+开始搞定这个吧。。<br>
+从www.sf.net下下载freetype2.3.5<br>
+tar xvf 之后</font></font></font><br>
+vim&nbsp;&nbsp;            freetype-2.3.5/include/freetype/config/ftoption.h<br>
+然后查找2个定义<br>
+/bytecode<br>
+/subpixel<br>
+找到的应该是在注释里面。往下拉，把<br>
+<pre style="border: 1px solid rgb(198, 198, 198); margin: 0px; padding: 4px; overflow: auto; width: 640px; height: 34px;" class="alt2">/* #define TT_CONFIG_OPTION_BYTECODE_INTERPRETER */</pre>
+的/* */注释号去掉，subpixel的也同理。<br>
+<font color="#00ff00"><font color="#999999"><font color="#000000">保存，开始编译。<br>
+cd freetype-2.3.5<br>
+./configure --prefix=/usr<br>
+make<br>
+make install DESTDIR=/tmp/freetype<br>
+cd /tmp/freetype<br>
+开始打包<br>
+makepkg -l y -c n /tmp/freetype-2.3.5-noarch-1.tgz<br>
+安装<br>
+installpkg /tmp/</font></font></font><font color="#00ff00"><font color="#999999"><font color="#000000">freetype-2.3.5-noarch-1.tgz</font></font></font><br>
+<font color="#00ff00"><font color="#999999"><font color="#000000"><br>
+libXft:<br>
+http://xorg.freedesktop.org/releases/individual/lib/<br>
+<br>
+tar xvf libXft-2.1.12.tar.bz2</font></font></font><br>
+cd libXft-2.1.12<br>
+<font color="#00ff00"><font color="#999999"><font color="#000000"> ./configure --prefix=/usr<br>
+make<br>
+make install DESTDIR=/tmp/libXft<br>
+cd /tmp/freetype<br>
+开始打包<br>
+makepkg -l y -c n /tmp/libXft-2.1.12-noarch-1.tgz<br>
+安装<br>
+installpkg /tmp/</font></font></font><font color="#00ff00"><font color="#999999"><font color="#000000">libXft-2.1.12-noarch-1.tgz<br>
+<br>
+下面搞定scim<br>
+去www.sf.net下个scim,skim,scim-pinyin(输入法看你喜好了，下个scim-table也不错，不用kde就不要skim)<br>
+按照上面的一样的流程打包安装<br>
+最后<br>
+vim /etc/X11/xinit/.xinitrc<br>
+加入<br>
+/usr/bin/skim -d<br>
+export XMODIFIERS=@im=SCIM<br>
+保存<br>
+重新起动X就有scim用了。<br>
+<br>
+中文化结束<br>
+&nbsp;&nbsp;&nbsp;         <br>
+&nbsp;&nbsp;         (2）常用软件安装<br>
+把你要用的软件一股脑得从<br>
+</font></font></font><a href="http://darkstar.ist.utl.pt/slackware/addon/slacky/slackware-12.0/">Index of /slackware/addon/slacky/slackware-12.0</a><br>
+<a href="http://www.slacky.eu/">Slacky :: Italian Slackware Community - Home</a><br>
+<a href="http://www.linuxpackages.net/search_view.php?orderby=hits&amp;advance=DESC&amp;ver=12.0">LinuxPackages: Results</a><br>
+下吧。linuxpackage的japan镜像最快。。。<br>
+<br>
+&nbsp;&nbsp;         (3) 内核编译，为了重新打开acpi,以及优化内核<br>
+标题所说的地狱就是这里。我在这一步反复摸索，试行错误（-___-japanese)<br>
+反反复复得弄了近10小时。。。。<br>
+下面GOGOGO,下载刚刚发布不久的Linux kernel 2.6.24 from kernel.org<br>
+记得别下成patch。有兴趣的朋友多多折腾。。。。<br>
+<br>
+tar xvf linux-2.6.24.tar.bz2 -C /usr/src<br>
+cd /usr/src/linux-2.6.24<br>
+make menuconfig<br>
+<br>
+下面加载slackware内核的原有设置,在/boot/config<br>
+<br>
+在Processor type and features里面<br>
+最关键的设置Processor family<br>
+Timer frequency<br>
+Preemption Model<br>
+原来这里的设置都是倾向服务器的。<br>
+在主菜单的Power management options里面打开<br>
+Hibernation<br>
+对acpi和cpu frequency scaling作点调整好了<br>
+去掉没用的。－ －<br>
+下面就是去Networking里面裁减<br>
+什么IrDA bluetooth都可以关了<br>
+Networking options里面去掉自己不可能用的东西<br>
+不去也没啥－ －<br>
+说起减肥的话，Device Drivers里面的东西才是大头<br>
+去了parallel port support<br>
+IEEE 1394<br>
+Fusion MPT<br>
+以及其他驱动。注意这里有几个东西要注意，<br>
+一个是SCSI的adaptec的一堆驱动（我死在这里好多次了，如开头所说）<br>
+一个不确定的是Raid，最好别动<br>
+I20不确定，最好别动<br>
+（上面两个都是在启动的dmesg里面看到的字样）<br>
+network方面有很多能去掉<br>
+比如ATM,FDDI,10000M以太网这样的，一辈子都可能碰不到的东西。。。。<br>
+对了，如果要用bcm43xx驱动来驱动dell无线网卡，记得在这里把他编译成模块。<br>
+还有一种方式是用ndiswrapper,就不要bcm43xx了。<br>
+驱动还有个kvm虚拟化，大家看着办吧。<br>
+主要是能去掉的就去掉－ －，别去错了。。<br>
+内核主要是到此为止＝0＝<br>
+make<br>
+make install<br>
+make modules_install<br>
+然后手工改下grub,加入这新内核<br>
+title SlackWare Linux 12.0-new kernel<br>
+&nbsp;&nbsp;&nbsp;        root (hd0,4)<br>
+&nbsp;&nbsp;&nbsp;        kernel /boot/vmlinuz root=/dev/sda5 ro<br>
+<br>
+重启看看效果吧。内核配置文件我附在文末吧。<br>
+VFS错误之类的希望别发生在你的头上。<br>
+<br>
+(4)显卡配置<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;        bash ati-driver-installer-8-01-x86.x86_64.run --buildpkg Slackware/All<br>
+&nbsp;&nbsp;&nbsp;&nbsp;        installpkg fglrx*.tgz<br>
+&nbsp;&nbsp;&nbsp;&nbsp;        aticonfig --initial<br>
+&nbsp;&nbsp;&nbsp;&nbsp;        顺便加入这两句到/etc/X11/xorg.conf的&nbsp;&nbsp;&nbsp;        Driver&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        &quot;fglrx&quot;&nbsp;&nbsp;&nbsp;        下面<br>
+&nbsp;&nbsp;&nbsp;        Option&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        &quot;VideoOverlay&quot;  &quot;on&quot;<br>
+&nbsp;&nbsp;&nbsp;        Option&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        &quot;OpenGLOverlay&quot; &quot;off&quot;<br>
+重启，在X里用fglrxinfo检查是否安装成功。<br>
+root@karas-laptop:~# fglrxinfo<br>
+display: :0.0  screen: 0<br>
+OpenGL vendor string: ATI Technologies Inc.<br>
+OpenGL renderer string: ATI Radeon Xpress Series<br>
+OpenGL version string: 2.1.7276 Release<br>
+<br>
+(5) 杀千刀的wireless lan ,无线网卡<br>
+这张破卡的驱动折腾了乌鸦我一下午，还让乌鸦误以为内核编错了。<br>
+好吧，让我们搞掉他。。<br>
+<a href="http://linuxwireless.org/en/users/Drivers/b43">b43 - Linux Wireless</a><br>
+1501的网卡是bcm4311 rev 1的，属于支持范围。<br>
+要用b43 (openSuse是bcm43xx,但是这次貌似是b43,都用也没坏处)<br>
+http://bu3sch.de/b43/fwcutter/b43-fwcutter-009.tar.bz2<br>
+http://downloads.openwrt.org/sources/broadcom-wl-4.80.53.0.tar.bz2<br>
+<br>
+tar xvf b43-fwcutter-009.tar.bz2<br>
+cd b43-fwcutter-009<br>
+make<br>
+make install<br>
+安装firmware了<br>
+bcm43xx-fwcutter -w /lib/firmware broadcom-wl-4.80.53.0/kmod/wl_apsta_mimo.o<br>
+好了，下面重启，用iwconfig多半能看到张网卡(被这张卡折腾了一下午，弄的没脾气了）<br>
+<br>
+root@karas-laptop:~/Desktop/broadcom-wl-4.80.53.0/kmod# iwconfig<br>
+lo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   no wireless extensions.<br>
+<br>
+eth0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   no wireless extensions.<br>
+<br>
+ppp0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   no wireless extensions.<br>
+<br>
+wmaster0  no wireless extensions.<br>
+<br>
+wlan0&nbsp;&nbsp;&nbsp;&nbsp;   IEEE 802.11g  ESSID:&quot; &#2041; &quot;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   Mode:Managed  Frequency:2.437 GHz  Access Point: 00:14:78:18:6C:FA<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   Tx-Power=27 dBm<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   Retry min limit:7&nbsp;&nbsp;   RTS thr:off&nbsp;&nbsp;   Fragment thr=2346 B<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   Encryption key:off<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   Link Quality:0  Signal level:0  Noise level:0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   Tx excessive retries:0  Invalid misc:0&nbsp;&nbsp;   Missed beacon:0<br>
+下面就是设置的问题了。。。我没无线路由，这次算了＝0＝成功后wifi灯常亮<br>
+无线网卡还可以用ndiswrapper使用winxp驱动解决，也许这种方法更好。（但是暂时没弄起）<br>
+<br>
+好了好了不写了。这文章码了一个多小时了。。。<br>
+回忆下自己也真够蛋疼，搞这系统＝ ＝。<br>
+下面没搞定的就是功能键了。不搞了，<br>
+这功能键还是ubuntu支持的最好<br>
+在8.04下几乎全支持了，在之前不支持屏幕亮度调节。<br>
+<br>
+内核编译和无线网卡算是把本乌鸦搞死了，10来个小时，地狱啊<br>
+还有，题外话，如果要wine 东方project的妖妖梦和永夜抄，wine 推荐版本0.9.48<br>
+再高了会有各种各样的bug....<br>
+0.9.49在对话的地方可能崩溃。<br>
+0.9.5x版本会看不到主菜单的背景。<br>
+东方风神录在ubuntu 8.04下貌似成功过了。全速，版本号好像是0.9.51, 不太记得了<br>
+后来一直没有成功过<br>
+红魔乡。。fps不正常，游戏速度很诡异。<br>
+<br>
+<br>
+<strong>本文是本乌鸦一字一字码出来的－ －如果要转载什么的，请留下原文地址。<br>
+<br>
+</strong>bbs里面也不帖了，这文章，让有缘人看吧。<br>
+参考：<br>
+<a href="http://bbs.linuxsir.org/thread310089.html">Slackware12终于完美汉化了！贴个图！（附方法在14楼） - LinuxSir.Org</a><br>
+<a href="http://linuxwireless.org/en/users/Drivers/b43">b43 - Linux Wireless</a><br>
+<br>
+该死的，kernel配置文件太长，空间文章居然还有字数限制＝ ＝<br>
+那就贴这里了<br>
+<a target="_blank" href="http://feikaras.web.fc2.com/myconfig">http://feikaras.web.fc2.com/myconfig</a><br>
+<font color="#00ff00"><br>
+</font></div></body></html>
