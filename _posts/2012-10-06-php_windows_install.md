@@ -25,8 +25,8 @@ php安装的时候选择apache cgi模式。安装到c:\php
 	#END PHP INSTALLER EDITS - REMOVE ONLY ON UNINSTALL
 
 如上并且，查找`<Directory`
-找到\<Directory "c:/Apache24/cgi-bin">字样（或者cgi-bin那行）
-改为\<Directory "c:/PHP">
+找到`<Directory "c:/Apache24/cgi-bin">`字样（或者cgi-bin那行）
+改为`<Directory "c:/PHP">`
 保存重启apache服务
 
 

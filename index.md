@@ -1,17 +1,15 @@
 ---
 layout: page
-title: Hello World!
-tagline: Supporting tagline
+title: RavenWhite
+tagline: linux,ubuntu,slackware,php,javascript,html
 ---
 {% include JB/setup %}
-中文的测试
+Hello,大家好～
 
-- a
-- b
-- c
-- 中文
-- d
-- e
+- Linux fan
+- PHP码农
+- 动画fan
+- 日语fan
 
 <ul class="posts">
   {% for post in site.posts %}
