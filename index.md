@@ -8,8 +8,7 @@ tagline: index
 中文测试
 - php
 - java
-- 动漫
 - 2111
-- a
+- 魔法
 - a
 - a
